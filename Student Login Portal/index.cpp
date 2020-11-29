@@ -3,6 +3,8 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <string>
+#include <algorithm>
 using namespace std;
 
 typedef map <string, string> database;
@@ -29,8 +31,9 @@ class Login {
         }
         void userLogin() {
             //cout<<"Welcome to the Login page"<<endl;
-            cout<<"Please enter username : ";
+            cout<<"Please enter username (NOTE: Username is case-insensitive) : ";
             cin>>username;
+            transform(username.begin(), username.end(), username.begin(), ::tolower);
             if (db.find(username) != db.end())
             {
                 cout<<"Please enter password : ";
@@ -71,8 +74,9 @@ class Login {
 };
 
 void SignUp::userSignUp() {
-    cout<<"Please enter username : ";
+    cout<<"Please enter username (NOTE: Username is case-insensitive) : ";
     cin>>username;
+    transform(username.begin(), username.end(), username.begin(), ::tolower);
     if (db.find(username) != db.end())
     {
         cout<<"The username is already taken, please try again"<<endl;
@@ -128,33 +132,59 @@ int main()
 {
     fstream fin;
     fin.open("database.txt", ios::in);
-    //vector<string> row;
-    string temp, line;
-    while (fin >> temp)
+    if (fin.is_open())
     {
+        int i=0;
         vector<string> row;
-        //row.clear();
-        getline(fin, line);
-        stringstream s(line);
-        string word;
-        cout<<"hi1"<<endl;
-        while (getline(s, word, ','))
+        string line;
+        while (fin >> line)
         {
-            row.push_back(word);
-            cout<<"hi2"<<endl;
+            if (i == 0)
+            {
+                i++;
+                continue;
+            }
+            vector<string> row;
+            row.clear();
+            stringstream s(line);
+            string word;
+            while (getline(s, word, ','))
+            {
+                row.push_back(word);
+            }
+            db[row[0]] = row[1];
+            i++;
         }
-        //db[row[0]] = row[1];
-        //cout<<row[0]<<endl;
-        //cout<<row[1]<<endl;
-        //cout<<row[2]<<endl;
-        cout<<"hi3"<<endl;
+        fin.close();
+    }
+    else
+    {
+        cout<<"Error opening file!"<<endl;
     }
 
-    db["Rahul"] = "abc123";
-    db["Abc123"] = "rahul";
+    database::iterator itr;
+    for (itr = db.begin(); itr!=db.end(); itr++)
+    {
+        cout<<itr->first<<" "<<itr->second<<endl;
+    }
     cout<<"Welcome to Login Portal!"<<endl;
-    cout<<db["rahul"]<<endl;
     Choice c;
     c.choose();
+
+    fstream fout;
+    fout.open("database.txt", ios::out);
+    if (fout.is_open())
+    {
+        database::iterator itr;
+        fout<<"Username,Password"<<endl;
+        for (itr = db.begin(); itr != db.end(); itr++)
+        {
+            fout<<itr->first<<","<<itr->second<<endl;
+        }
+    }
+    else
+    {
+        cout<<"Error opening file to save credentials"<<endl;
+    }
     return 0;
 }
