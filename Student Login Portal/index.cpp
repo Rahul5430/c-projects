@@ -162,11 +162,6 @@ int main()
         cout<<"Error opening file!"<<endl;
     }
 
-    database::iterator itr;
-    for (itr = db.begin(); itr!=db.end(); itr++)
-    {
-        cout<<itr->first<<" "<<itr->second<<endl;
-    }
     cout<<"Welcome to Login Portal!"<<endl;
     Choice c;
     c.choose();
